@@ -1,0 +1,118 @@
+{
+    "dataset_info": {
+        "rows": 1000,
+        "columns": 14,
+        "schema": {
+            "Product_ID": "Int64",
+            "Sale_Date": "String",
+            "Sales_Rep": "String",
+            "Region": "String",
+            "Sales_Amount": "Float64",
+            "Quantity_Sold": "Int64",
+            "Product_Category": "String",
+            "Unit_Cost": "Float64",
+            "Unit_Price": "Float64",
+            "Customer_Type": "String",
+            "Discount": "Float64",
+            "Payment_Method": "String",
+            "Sales_Channel": "String",
+            "Region_and_Sales_Rep": "String"
+        }
+    },
+    "descriptive_statistics": {
+        "Product_ID": {
+            "mean": 1050.128,
+            "min": 1001,
+            "max": 1100,
+            "std": 29.573505172843614
+        },
+        "Sales_Amount": {
+            "mean": 5019.265229999999,
+            "min": 100.12,
+            "max": 9989.04,
+            "std": 2846.790125668232
+        },
+        "Quantity_Sold": {
+            "mean": 25.355,
+            "min": 1,
+            "max": 49,
+            "std": 14.159006054538308
+        },
+        "Unit_Cost": {
+            "mean": 2475.3045500000003,
+            "min": 60.28,
+            "max": 4995.3,
+            "std": 1417.8725460040862
+        },
+        "Unit_Price": {
+            "mean": 2728.4401199999998,
+            "min": 167.12,
+            "max": 5442.15,
+            "std": 1419.399838580711
+        },
+        "Discount": {
+            "mean": 0.15238999999999997,
+            "min": 0.0,
+            "max": 0.3,
+            "std": 0.08719972300237938
+        }
+    },
+    "missing_value_analysis": {
+        "Product_ID": {
+            "missing_count": 0,
+            "missing_percentage": 0.0
+        },
+        "Sale_Date": {
+            "missing_count": 0,
+            "missing_percentage": 0.0
+        },
+        "Sales_Rep": {
+            "missing_count": 0,
+            "missing_percentage": 0.0
+        },
+        "Region": {
+            "missing_count": 0,
+            "missing_percentage": 0.0
+        },
+        "Sales_Amount": {
+            "missing_count": 0,
+            "missing_percentage": 0.0
+        },
+        "Quantity_Sold": {
+            "missing_count": 0,
+            "missing_percentage": 0.0
+        },
+        "Product_Category": {
+            "missing_count": 0,
+            "missing_percentage": 0.0
+        },
+        "Unit_Cost": {
+            "missing_count": 0,
+            "missing_percentage": 0.0
+        },
+        "Unit_Price": {
+            "missing_count": 0,
+            "missing_percentage": 0.0
+        },
+        "Customer_Type": {
+            "missing_count": 0,
+            "missing_percentage": 0.0
+        },
+        "Discount": {
+            "missing_count": 0,
+            "missing_percentage": 0.0
+        },
+        "Payment_Method": {
+            "missing_count": 0,
+            "missing_percentage": 0.0
+        },
+        "Sales_Channel": {
+            "missing_count": 0,
+            "missing_percentage": 0.0
+        },
+        "Region_and_Sales_Rep": {
+            "missing_count": 0,
+            "missing_percentage": 0.0
+        }
+    }
+}
