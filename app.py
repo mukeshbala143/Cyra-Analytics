@@ -54,13 +54,12 @@ def plot_numeric_distributions(df):
     figs = []
 
     for col in numeric_cols:
-        fig, ax = plt.subplots(figsize=(6, 4))  # Slightly larger
+        fig, ax = plt.subplots(figsize=(6, 4))  
         ax.hist(df[col].to_list(), bins=20)
         ax.set_title(f"Distribution of {col}")
         ax.set_xlabel(col)
         ax.set_ylabel("Frequency")
         
-        # FIX: Adjust layout to prevent label cutoff
         fig.tight_layout()
         
         figs.append(fig)
