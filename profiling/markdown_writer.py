@@ -46,6 +46,6 @@ def generate_markdown_report(dataset_info, stats, missing_values) -> str:
             f"- `{col}`: {info['missing_count']} missing "
             f"({info['missing_percentage']:.2f}%)"
         )
-        md.append("")  # ✅ blank line after each entry
+        md.append("")  # blank line after each entry
 
     return "\n".join(md)

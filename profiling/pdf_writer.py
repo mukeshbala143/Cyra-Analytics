@@ -7,18 +7,18 @@ import os
 import streamlit as st
 
 def generate_pdf_report(md_text, chart_paths):
-    st.write(f"🔍 Starting PDF generation with {len(chart_paths)} images")
+    st.write(f"Starting PDF generation with {len(chart_paths)} images")
     
     # Verify paths
     valid_paths = []
     for i, p in enumerate(chart_paths):
         if os.path.exists(p):
             valid_paths.append(p)
-            st.write(f"✅ Image {i+1}: Found - {os.path.basename(p)}")
+            st.write(f"Image {i+1}: Found - {os.path.basename(p)}")
         else:
-            st.error(f"❌ Image {i+1}: MISSING - {p}")
+            st.error(f"Image {i+1}: MISSING - {p}")
     
-    st.write(f"📊 Valid images: {len(valid_paths)}/{len(chart_paths)}")
+    st.write(f"Valid images: {len(valid_paths)}/{len(chart_paths)}")
     
     # Create temp file in a location Streamlit can access
     temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf", dir=tempfile.gettempdir())
@@ -87,14 +87,14 @@ def generate_pdf_report(md_text, chart_paths):
             story.append(Paragraph(f"<b>Figure {i+1}:</b> Data Visualization", styles["Normal"]))
             
             images_added += 1
-            st.write(f"✅ Added Figure {i+1} ({final_w:.0f}x{final_h:.0f}pt)")
+            st.write(f"Added Figure {i+1} ({final_w:.0f}x{final_h:.0f}pt)")
             
         except Exception as e:
-            st.error(f"❌ Error with image {i+1}: {str(e)}")
+            st.error(f"Error with image {i+1}: {str(e)}")
             continue
     
-    st.write(f"📦 Total story elements: {len(story)}")
-    st.write(f"🖼️ Images added: {images_added}")
+    st.write(f"Total story elements: {len(story)}")
+    st.write(f"Images added: {images_added}")
     
     # Build PDF
     try:
@@ -103,13 +103,13 @@ def generate_pdf_report(md_text, chart_paths):
         # Verify the file was created
         if os.path.exists(temp_path):
             file_size = os.path.getsize(temp_path)
-            st.success(f"✅ PDF created successfully ({file_size:,} bytes)")
+            st.success(f"PDF created successfully ({file_size:,} bytes)")
             st.write(f"📄 Path: {temp_path}")
         else:
-            st.error("❌ PDF file not created!")
+            st.error("PDF file not created!")
             
     except Exception as e:
-        st.error(f"❌ PDF build failed: {str(e)}")
+        st.error(f"PDF build failed: {str(e)}")
         import traceback
         st.code(traceback.format_exc())
     
