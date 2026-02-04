@@ -49,7 +49,7 @@ def generate_pdf_report(md_text, chart_paths):
         else:
             story.append(Paragraph(line, styles["Normal"]))
     
-    st.write(f"📝 Added text elements to story")
+    st.write(f"Added text elements to story")
     
     # Add images - ONE AT A TIME with individual builds
     # This is the KEY FIX for Streamlit/ReportLab issues
@@ -104,7 +104,7 @@ def generate_pdf_report(md_text, chart_paths):
         if os.path.exists(temp_path):
             file_size = os.path.getsize(temp_path)
             st.success(f"PDF created successfully ({file_size:,} bytes)")
-            st.write(f"📄 Path: {temp_path}")
+            st.write(f"Path: {temp_path}")
         else:
             st.error("PDF file not created!")
             
