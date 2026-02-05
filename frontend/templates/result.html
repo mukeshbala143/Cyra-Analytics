@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results | RAG CSV Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Analysis Complete</h1>
+        <p style="text-align: center; color: var(--text-secondary); font-size: 1.125rem; margin-bottom: 2rem;">
+            Your dataset has been processed and analyzed
+        </p>
+
+        <!-- Dataset Overview -->
+        <div class="card" style="margin-bottom: 2rem;">
+            <h2>📋 Dataset Overview</h2>
+            <div class="info-grid">
+                <div class="info-box">
+                    <p>Total Rows</p>
+                    <p>{{ dataset_info.rows }}</p>
+                </div>
+                <div class="info-box">
+                    <p>Total Columns</p>
+                    <p>{{ dataset_info.columns }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        {% if charts %}
+        <div class="card" style="margin-bottom: 2rem;">
+            <h2>📊 Visualizations</h2>
+            <div class="charts-grid">
+                {% for c in charts %}
+                <div class="chart-container">
+                    <img src="{{ c }}" alt="Data visualization chart">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Markdown Report -->
+        <div class="card" style="margin-bottom: 2rem;">
+            <h2>📝 Analysis Report</h2>
+            <pre>{{ markdown }}</pre>
+        </div>
+
+        <!-- Downloads -->
+        <div class="card">
+            <h3>⬇️ Download Results</h3>
+            <div class="downloads">
+                <a href="/download?path={{ json_path }}" class="download-btn">
+                    <span>📦</span>
+                    JSON Data
+                </a>
+                <a href="/download?path={{ md_path }}" class="download-btn">
+                    <span>📄</span>
+                    Markdown Report
+                </a>
+                <a href="/download?path={{ pdf_path }}" class="download-btn">
+                    <span>📕</span>
+                    PDF Report
+                </a>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="/" class="btn back-btn">
+                <span>⬅️</span>
+                Analyze Another File
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scroll to top on load
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Add animation to charts on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeIn 0.6s ease-out';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.chart-container').forEach(chart => {
+            observer.observe(chart);
+        });
+    </script>
+</body>
+</html>

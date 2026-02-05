@@ -2,96 +2,85 @@
 
 ## Dataset Overview
 
-- **Rows:** 1000
-- **Columns:** 14
+- **Rows:** 2200
+- **Columns:** 8
 
 ### Schema
 
-- `Product_ID` : Int64
-- `Sale_Date` : String
-- `Sales_Rep` : String
-- `Region` : String
-- `Sales_Amount` : Float64
-- `Quantity_Sold` : Int64
-- `Product_Category` : String
-- `Unit_Cost` : Float64
-- `Unit_Price` : Float64
-- `Customer_Type` : String
-- `Discount` : Float64
-- `Payment_Method` : String
-- `Sales_Channel` : String
-- `Region_and_Sales_Rep` : String
+- `N` : Int64
+- `P` : Int64
+- `K` : Int64
+- `temperature` : Float64
+- `humidity` : Float64
+- `ph` : Float64
+- `rainfall` : Float64
+- `label` : String
 
 ## Descriptive Statistics
 
-### `Product_ID`
+### `N`
 
-- **Mean**: 1050.128
-- **Min**: 1001
-- **Max**: 1100
-- **Std**: 29.5735
+- **Mean**: 50.5518
+- **Min**: 0
+- **Max**: 140
+- **Std**: 36.9173
 
-### `Sales_Amount`
+### `P`
 
-- **Mean**: 5019.2652
-- **Min**: 100.12
-- **Max**: 9989.04
-- **Std**: 2846.7901
+- **Mean**: 53.3627
+- **Min**: 5
+- **Max**: 145
+- **Std**: 32.9859
 
-### `Quantity_Sold`
+### `K`
 
-- **Mean**: 25.355
-- **Min**: 1
-- **Max**: 49
-- **Std**: 14.159
+- **Mean**: 48.1491
+- **Min**: 5
+- **Max**: 205
+- **Std**: 50.6479
 
-### `Unit_Cost`
+### `temperature`
 
-- **Mean**: 2475.3046
-- **Min**: 60.28
-- **Max**: 4995.3
-- **Std**: 1417.8725
+- **Mean**: 25.6162
+- **Min**: 8.8257
+- **Max**: 43.6755
+- **Std**: 5.0637
 
-### `Unit_Price`
+### `humidity`
 
-- **Mean**: 2728.4401
-- **Min**: 167.12
-- **Max**: 5442.15
-- **Std**: 1419.3998
+- **Mean**: 71.4818
+- **Min**: 14.258
+- **Max**: 99.9819
+- **Std**: 22.2638
 
-### `Discount`
+### `ph`
 
-- **Mean**: 0.1524
-- **Min**: 0.0
-- **Max**: 0.3
-- **Std**: 0.0872
+- **Mean**: 6.4695
+- **Min**: 3.5048
+- **Max**: 9.9351
+- **Std**: 0.7739
+
+### `rainfall`
+
+- **Mean**: 103.4637
+- **Min**: 20.2113
+- **Max**: 298.5601
+- **Std**: 54.9584
 
 ## Missing Value Analysis
 
-- `Product_ID`: 0 missing (0.00%)
+- `N`: 0 missing (0.00%)
 
-- `Sale_Date`: 0 missing (0.00%)
+- `P`: 0 missing (0.00%)
 
-- `Sales_Rep`: 0 missing (0.00%)
+- `K`: 0 missing (0.00%)
 
-- `Region`: 0 missing (0.00%)
+- `temperature`: 0 missing (0.00%)
 
-- `Sales_Amount`: 0 missing (0.00%)
+- `humidity`: 0 missing (0.00%)
 
-- `Quantity_Sold`: 0 missing (0.00%)
+- `ph`: 0 missing (0.00%)
 
-- `Product_Category`: 0 missing (0.00%)
+- `rainfall`: 0 missing (0.00%)
 
-- `Unit_Cost`: 0 missing (0.00%)
-
-- `Unit_Price`: 0 missing (0.00%)
-
-- `Customer_Type`: 0 missing (0.00%)
-
-- `Discount`: 0 missing (0.00%)
-
-- `Payment_Method`: 0 missing (0.00%)
-
-- `Sales_Channel`: 0 missing (0.00%)
-
-- `Region_and_Sales_Rep`: 0 missing (0.00%)
+- `label`: 0 missing (0.00%)

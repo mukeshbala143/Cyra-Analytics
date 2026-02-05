@@ -1,8 +1,11 @@
+import os
 import json
-import streamlit as st
+
+from flask import Flask, render_template, request, send_file
 import polars as pl
+import matplotlib
+matplotlib.use("Agg")   # 🔥 VERY IMPORTANT (prevents server crash)
 import matplotlib.pyplot as plt
-import tempfile
 
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet
@@ -14,63 +17,70 @@ from profiling.missing_values import missing_value_analysis
 from profiling.markdown_writer import generate_markdown_report
 
 
-# -------------------- Streamlit Config --------------------
-st.set_page_config(
-    page_title="RAG-based CSV Analyzer",
-    layout="wide"
+app = Flask(
+    __name__,
+    template_folder="frontend/templates",
+    static_folder="frontend/static"
 )
 
-st.title("RAG-based CSV Analyzer")
-st.write("Upload a CSV file to generate profiling reports.")
+UPLOAD_DIR = "data"
+OUTPUT_DIR = "output"
+PLOT_DIR = os.path.join("frontend", "static", "plots")
+
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+os.makedirs(PLOT_DIR, exist_ok=True)
 
 
 # -------------------- Helper Functions --------------------
 def plot_missing_values(missing_values):
     cols = list(missing_values.keys())
+    values = [
+        v.get("count", 0) if isinstance(v, dict) else v
+        for v in missing_values.values()
+    ]
 
-    # Handle both dict and scalar formats
-    values = []
-    for v in missing_values.values():
-        if isinstance(v, dict):
-            values.append(v.get("count", 0))
-        else:
-            values.append(v)
-
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(8, 4))
     ax.bar(cols, values)
     ax.set_title("Missing Values per Column")
-    ax.set_ylabel("Missing Count")
     plt.xticks(rotation=45, ha="right")
+    fig.tight_layout()
 
-    return fig
+    path = os.path.join(PLOT_DIR, "missing_values.png")
+    fig.savefig(path)
+    plt.close(fig)
+
+    return "/static/plots/missing_values.png"
 
 
 def plot_numeric_distributions(df):
+    paths = []
     numeric_cols = [
         col for col, dtype in zip(df.columns, df.dtypes)
-        if dtype in (pl.Int64, pl.Float64)
+        if dtype in (pl.Int64, pl.Int32, pl.Float64, pl.Float32)
     ]
 
-    figs = []
-
     for col in numeric_cols:
-        fig, ax = plt.subplots(figsize=(6, 4))  
-        ax.hist(df[col].to_list(), bins=20)
+        fig, ax = plt.subplots(figsize=(6, 4))
+        ax.hist(df[col].drop_nulls().to_list(), bins=20)
         ax.set_title(f"Distribution of {col}")
-        ax.set_xlabel(col)
-        ax.set_ylabel("Frequency")
-        
         fig.tight_layout()
-        
-        figs.append(fig)
 
-    return figs
+        filename = f"{col}_dist.png"
+        full_path = os.path.join(PLOT_DIR, filename)
+        fig.savefig(full_path)
+        plt.close(fig)
+
+        paths.append(f"/static/plots/{filename}")
+
+    return paths
+
 
 def generate_pdf_report(md_text, chart_paths):
-    temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+    pdf_path = os.path.join(OUTPUT_DIR, "profiling_report.pdf")
 
     doc = SimpleDocTemplate(
-        temp_pdf.name,
+        pdf_path,
         pagesize=A4,
         rightMargin=40,
         leftMargin=40,
@@ -83,128 +93,92 @@ def generate_pdf_report(md_text, chart_paths):
 
     for line in md_text.split("\n"):
         if line.strip():
-            story.append(Paragraph(line, styles["Normal"]))
+            safe = (
+                line.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+            )
+            story.append(Paragraph(safe, styles["Normal"]))
             story.append(Spacer(1, 8))
 
     story.append(Spacer(1, 20))
 
-    for path in chart_paths:
-        story.append(Image(path, width=5 * inch, height=3 * inch))
+    for img in chart_paths:
+        img_path = os.path.join("frontend", img.lstrip("/"))
+        story.append(Image(img_path, width=5 * inch, height=3 * inch))
         story.append(Spacer(1, 20))
 
     doc.build(story)
-    return temp_pdf.name
+    return pdf_path
 
 
-# -------------------- File Uploader --------------------
-uploaded_file = st.file_uploader(
-    "Upload CSV file",
-    type=["csv"]
-)
+# -------------------- Routes --------------------
+@app.route("/")
+def index():
+    return render_template("index.html")
 
-if uploaded_file is not None:
-    try:
-        df = pl.read_csv(uploaded_file)
-    except Exception as e:
-        st.error(f"Error reading CSV file: {e}")
-        st.stop()
 
-    # -------------------- Dataset Info --------------------
+@app.route("/upload", methods=["POST"])
+def upload():
+    file = request.files.get("file")
+    if not file:
+        return render_template("error.html", message="No file uploaded")
+
+    csv_path = os.path.join(UPLOAD_DIR, file.filename)
+    file.save(csv_path)
+
+    df = pl.read_csv(csv_path)
+
     dataset_info = {
         "rows": df.height,
         "columns": df.width,
-        "schema": {
-            col: str(dtype)
-            for col, dtype in zip(df.columns, df.dtypes)
-        }
+        "schema": {c: str(t) for c, t in zip(df.columns, df.dtypes)}
     }
 
-    st.subheader("Dataset Overview")
-    col1, col2 = st.columns(2)
-    col1.metric("Rows", dataset_info["rows"])
-    col2.metric("Columns", dataset_info["columns"])
+    stats = descriptive_statistics(df)
+    missing = missing_value_analysis(df)
+    markdown = generate_markdown_report(dataset_info, stats, missing)
 
-    st.subheader("Schema")
-    st.json(dataset_info["schema"])
+    charts = []
+    charts.append(plot_missing_values(missing))
+    charts.extend(plot_numeric_distributions(df))
 
-    # -------------------- Profiling --------------------
-    with st.spinner("Running data profiling..."):
-        stats = descriptive_statistics(df)
-        missing_values = missing_value_analysis(df)
+    json_path = os.path.join(OUTPUT_DIR, "profiling_report.json")
+    with open(json_path, "w") as f:
+        json.dump({
+            "dataset_info": dataset_info,
+            "descriptive_statistics": stats,
+            "missing_value_analysis": missing
+        }, f, indent=4)
 
-    st.subheader("Descriptive Statistics")
-    st.json(stats)
+    md_path = os.path.join(OUTPUT_DIR, "profiling_report.md")
+    with open(md_path, "w") as f:
+        f.write(markdown)
 
-    st.subheader("Missing Value Analysis")
-    st.json(missing_values)
+    pdf_path = generate_pdf_report(markdown, charts)
 
-    # -------------------- Markdown Report --------------------
-    md_report = generate_markdown_report(
-        dataset_info,
-        stats,
-        missing_values
+    return render_template(
+        "result.html",
+        dataset_info=dataset_info,
+        markdown=markdown,
+        charts=charts,
+        json_path=json_path,
+        md_path=md_path,
+        pdf_path=pdf_path
     )
 
-    st.subheader("Auto-generated Markdown Report")
-    st.markdown(md_report)
 
-    # -------------------- Visualizations --------------------
-    st.subheader("Data Visualizations")
-    chart_paths = []
+@app.route("/download")
+def download():
+    path = request.args.get("path")
+    return send_file(path, as_attachment=True)
 
-    # ---- Missing Values Plot ----
-    st.markdown("### Missing Values per Column")
 
-    fig1 = plot_missing_values(missing_values)
-    st.pyplot(fig1)
-
-    tmp1 = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
-    fig1.savefig(tmp1.name)
-    chart_paths.append(tmp1.name)
-    plt.close(fig1)
-
-    # ---- Numeric Column Distributions ----
-    st.markdown("### Numeric Column Distributions")
-
-    figs = plot_numeric_distributions(df)
-
-    for fig in figs:
-        st.pyplot(fig)
-        
-        # Save EACH figure to its own temp file
-        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
-        fig.savefig(tmp.name)
-        chart_paths.append(tmp.name)
-        plt.close(fig)
-
-    st.write(f"Total vi generated: {len(chart_paths)}")
-
-    # -------------------- Downloads --------------------
-    report_json = {
-        "dataset_info": dataset_info,
-        "descriptive_statistics": stats,
-        "missing_value_analysis": missing_values
-    }
-
-    st.download_button(
-        label="⬇️ Download JSON Report",
-        data=json.dumps(report_json, indent=4),
-        file_name="profiling_report.json",
-        mime="application/json"
+if __name__ == "__main__":
+    # 🔥 PORT 5002 + NO DEBUG + NO RELOADER
+    app.run(
+        host="127.0.0.1",
+        port=5002,
+        debug=False,
+        use_reloader=False
     )
-
-    st.download_button(
-        label="⬇️ Download Markdown Report",
-        data=md_report,
-        file_name="profiling_report.md",
-        mime="text/markdown"
-    )
-
-    pdf_path = generate_pdf_report(md_report, chart_paths)
-    with open(pdf_path, "rb") as f:
-        st.download_button(
-            label="⬇️ Download PDF Report",
-            data=f,
-            file_name="profiling_report.pdf",
-            mime="application/pdf"
-        )

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG CSV Analyzer | Advanced Data Intelligence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="upload-section">
+            <h1>📊 RAG CSV Analyzer</h1>
+            <p style="text-align: center; color: var(--text-secondary); font-size: 1.125rem; margin-bottom: 2rem;">
+                Transform your data into actionable insights with AI-powered analysis
+            </p>
+            
+            <form action="/upload" method="POST" enctype="multipart/form-data" id="uploadForm">
+                <!-- File Upload Box -->
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <div class="file-input-wrapper">
+                        <input type="file" name="file" id="fileInput" accept=".csv" required>
+                        <label for="fileInput" class="file-input-label">
+                            <span class="file-label-text">Drop your CSV file here</span>
+                            <span class="file-label-subtext">or click to browse</span>
+                            <span class="file-label-subtext" style="margin-top: 0.5rem; font-size: 0.75rem;">Supports CSV files up to 100MB</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Analyze Button Box -->
+                <div class="card" style="text-align: center; padding: 2rem;">
+                    <button type="submit" style="margin: 0;">
+                        <span>🚀</span>
+                        Analyze Dataset
+                    </button>
+                </div>
+            </form>
+
+            <div style="margin-top: 3rem; text-align: center;">
+                <h3 style="color: var(--text-secondary); font-size: 1rem; font-weight: 600; margin-bottom: 1.5rem;">
+                    What You'll Get
+                </h3>
+                <div class="info-grid">
+                    <div class="info-box">
+                        <p>📈</p>
+                        <p style="font-size: 1rem; margin-top: 0.5rem;">Interactive Charts</p>
+                    </div>
+                    <div class="info-box">
+                        <p>📄</p>
+                        <p style="font-size: 1rem; margin-top: 0.5rem;">Detailed Reports</p>
+                    </div>
+                    <div class="info-box">
+                        <p>🤖</p>
+                        <p style="font-size: 1rem; margin-top: 0.5rem;">AI Insights</p>
+                    </div>
+                    <div class="info-box">
+                        <p>⬇️</p>
+                        <p style="font-size: 1rem; margin-top: 0.5rem;">Export Options</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show selected file name
+        const fileInput = document.getElementById('fileInput');
+        const analyzeBtn = document.querySelector('button[type="submit"]');
+        
+        fileInput.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if (fileName) {
+                const label = document.querySelector('.file-label-text');
+                label.textContent = `✓ ${fileName}`;
+                label.style.color = 'var(--success)';
+                
+                // Update button text
+                analyzeBtn.innerHTML = '<span>🚀</span> Analyze Dataset';
+            }
+        });
+
+        // Add loading state on form submit
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            const button = this.querySelector('button');
+            button.innerHTML = '<span class="loading">⏳</span> Analyzing...';
+            button.disabled = true;
+        });
+    </script>
+</body>
+</html>
